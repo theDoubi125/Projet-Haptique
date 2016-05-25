@@ -58,6 +58,8 @@ public class WaterFlow : MonoBehaviour {
     void Update()
     {
         time += Time.deltaTime;
+        if (time > 1)
+            UpdateMesh();
 
         /*if (time > 1 / 10f)
         {
@@ -103,7 +105,6 @@ public class WaterFlow : MonoBehaviour {
         mesh.RecalculateNormals();
         DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
         m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        m_mesh.transform.position = transform.position;
-        m_mesh.transform.localPosition = new Vector3(-32 / 2, -32 / 2, -32 / 2);
+        m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
     }
 }

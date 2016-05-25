@@ -3,7 +3,7 @@ using System.Collections;
 
 public class RaycastCursor : MonoBehaviour {
     public float distToCam = 5, scrollFactor = 1;
-    public WaterFlow instance;
+    public WaterFlow[] instances;
 	// Use this for initialization
 	void Start () {
 	
@@ -22,14 +22,16 @@ public class RaycastCursor : MonoBehaviour {
             distToCam += Input.mouseScrollDelta.y * scrollFactor;
         }
 
-        int x = (int)(transform.position.x - instance.transform.position.x) + 16;
-        int y = (int)(transform.position.y - instance.transform.position.y) + 16;
-        int z = (int)(transform.position.z - instance.transform.position.z) + 16;
-        if (Input.GetMouseButton(0))
+        foreach(WaterFlow instance in instances)
         {
-            print(x + " " + y + " " + z);
-            instance.SetVoxel(x, y, z, 1);
-            instance.UpdateMesh();
+            int x = (int)(transform.position.x - instance.transform.position.x) + 16;
+            int y = (int)(transform.position.y - instance.transform.position.y) + 16;
+            int z = (int)(transform.position.z - instance.transform.position.z) + 16;
+            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
+            {
+                instance.SetVoxel(x, y, z, 1);
+                instance.UpdateMesh();
+            }
         }
     }
 }
