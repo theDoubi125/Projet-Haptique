@@ -94,4 +94,9 @@ public class Instance : MonoBehaviour {
             }
         }
     }
+
+    public void SetVoxel(int x, int y, int z, float value)
+    {
+        voxels[x, y, z] = value;
+    }
 }
