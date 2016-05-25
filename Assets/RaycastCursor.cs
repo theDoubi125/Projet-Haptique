@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class RaycastCursor : MonoBehaviour {
-
+    public float distToCam = 5, scrollFactor = 1;
 	// Use this for initialization
 	void Start () {
 	
@@ -12,10 +12,14 @@ public class RaycastCursor : MonoBehaviour {
 	void Update ()
     {
         Transform cam = Camera.main.transform;
-        RaycastHit hit;
-        if (Physics.Raycast(cam.position, cam.forward, out hit, 500))
+        
+        transform.position = cam.position + cam.forward * distToCam;
+
+        print(Input.mouseScrollDelta);
+        if(Input.mouseScrollDelta.y != 0)
         {
-            transform.position = hit.point;
+            distToCam += Input.mouseScrollDelta.y * scrollFactor;
         }
+        
     }
 }
