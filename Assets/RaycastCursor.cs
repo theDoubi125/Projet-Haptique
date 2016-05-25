@@ -5,11 +5,14 @@ public class RaycastCursor : MonoBehaviour {
     public float distToCam = 5, scrollFactor = 1;
     public WaterFlow instance;
 	public int brushSize = 10;
-	public int brushType = 1;
+	public int brushIndex = 0;
+	public Brush[] brushes;
+
 	private Vector3 currentPosition;
 	// Use this for initialization
 	void Start () {
 		currentPosition = new Vector3 (0, 0, 0);
+		brushes = new []{new CubicBrush(),new SphericBrush(),new CrossBrush()};
 	}
 	
 	// Update is called once per frame
@@ -35,50 +38,66 @@ public class RaycastCursor : MonoBehaviour {
         {
             print(x + " " + y + " " + z);
 
-			int offset = (int)(brushSize * 0.5);
-		
-			/*for (int teta = 0; teta < 360; teta++) {
-				for (int teta2 = 0; teta2 < 180; teta2++) {
-					instance.SetVoxel((int)(x+offset*Mathf.Cos(teta)*Mathf.Sin(teta2)), (int)(y+offset*Mathf.Sin(teta)*Mathf.Cos(teta2)), (int)(z+offset*Mathf.Cos(teta2)), 1);
-				}
-			}*/
-
-			if (brushType == 1) {
-				// Brush boule
-				for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-					for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-						for (int posY = y - offset; posY <= y + offset; posY++) {
-							if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
-								instance.SetVoxel (posX, posY, posZ, 1);
-						}
-					}
-				}
-			}
-			else if (brushType == 2) {
-				// Brush boule
-				for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-					for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-						for (int posY = y - offset; posY <= y + offset; posY++) {
-							if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
-								instance.SetVoxel (posX, posY, posZ, 1);
-						}
-					}
-				}
-			} else {
-				// brush cube
-				for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-					for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-						for (int posY = y - offset; posY <= y + offset; posY++) {
-							instance.SetVoxel (posX, posY, posZ, 1);
-						}
-					}
-				}
-			}
-
-
-			
-
 			instance.UpdateMesh();
         }
     }
+}
+
+
+abstract class Brush
+{
+	public abstract void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value);
+}
+	
+class CubicBrush : Brush
+{
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	{
+		int offset = (int)(brushSize * 0.5);
+		
+		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
+			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
+				for (int posY = y - offset; posY <= y + offset; posY++) {
+					instance.SetVoxel (posX, posY, posZ, 1);
+				}
+			}
+		}
+	}
+}
+
+class SphericBrush : Brush
+{
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	{
+		int offset = (int)(brushSize * 0.5);
+		
+		// Brush boule
+		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
+			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
+				for (int posY = y - offset; posY <= y + offset; posY++) {
+					if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
+						instance.SetVoxel (posX, posY, posZ, 1);
+				}
+			}
+		}
+	}
+}
+
+class CrossBrush : Brush
+{
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	{
+		int offset = (int)(brushSize * 0.5);
+
+		// Brush croix
+		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
+			instance.SetVoxel (posX, y, z, 1);
+		}
+		for (int posZ = z - offset; posZ <= z + offset; posZ++) {
+			instance.SetVoxel (x, y, posZ, 1);
+		}
+		for (int posY = y - offset; posY <= y + offset; posY++) {
+			instance.SetVoxel (x, posY, z, 1);
+		}
+	}
 }
