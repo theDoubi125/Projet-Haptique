@@ -7,6 +7,7 @@ public class RaycastCursor : MonoBehaviour {
     public List<WaterFlow> instances = new List<WaterFlow>();
 	public int brushSize = 10;
 	public int brushIndex = 0;
+	public int currentVoxelValue = 1;
 	private Brush[] brushes;
 
 	// Use this for initialization
@@ -35,7 +36,7 @@ public class RaycastCursor : MonoBehaviour {
 
             if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
             {
-				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, 1);
+				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, currentVoxelValue);
 				instance.UpdateMesh();
             }
         }
@@ -57,7 +58,7 @@ class CubicBrush : Brush
 		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
 			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
 				for (int posY = y - offset; posY <= y + offset; posY++) {
-					instance.SetVoxel (posX, posY, posZ, 1);
+					instance.SetVoxel (posX, posY, posZ, value);
 				}
 			}
 		}
@@ -77,7 +78,7 @@ class SphericBrush : Brush
 			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
 				for (int posY = y - offset; posY <= y + offset; posY++) {
 					if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
-						instance.SetVoxel (posX, posY, posZ, 1);
+						instance.SetVoxel (posX, posY, posZ, value);
 				}
 			}
 		}
@@ -92,13 +93,13 @@ class CrossBrush : Brush
 
 		// Brush croix
 		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-			instance.SetVoxel (posX, y, z, 1);
+			instance.SetVoxel (posX, y, z, value);
 		}
 		for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-			instance.SetVoxel (x, y, posZ, 1);
+			instance.SetVoxel (x, y, posZ, value);
 		}
 		for (int posY = y - offset; posY <= y + offset; posY++) {
-			instance.SetVoxel (x, posY, z, 1);
+			instance.SetVoxel (x, posY, z, value);
 		}
 	}
 }
