@@ -52,7 +52,7 @@ public class WaterFlow : MonoBehaviour {
         m_mesh.GetComponent<Renderer>().material = m_material;
         m_mesh.GetComponent<MeshFilter>().mesh = mesh;
         //Center mesh
-        m_mesh.transform.localPosition = new Vector3(-32 / 2, -32 / 2, -32 / 2);
+        m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
     }
 
     void Update()
@@ -90,7 +90,8 @@ public class WaterFlow : MonoBehaviour {
 
     public void SetVoxel(int x, int y, int z, float value)
     {
-        voxels[x, y, z] = value;
+        if(x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32)
+            voxels[x, y, z] = value;
     }
 
     public void UpdateMesh()
@@ -103,7 +104,6 @@ public class WaterFlow : MonoBehaviour {
         mesh.RecalculateNormals();
         DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
         m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        m_mesh.transform.position = transform.position;
-        m_mesh.transform.localPosition = new Vector3(-32 / 2, -32 / 2, -32 / 2);
+        m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
     }
 }

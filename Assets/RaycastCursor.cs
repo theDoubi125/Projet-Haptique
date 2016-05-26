@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RaycastCursor : MonoBehaviour {
     public float distToCam = 5, scrollFactor = 1;
-    public WaterFlow instance;
+    public List<WaterFlow> instances = new List<WaterFlow>();
 	public int brushSize = 10;
 	public int brushIndex = 0;
 	public Brush[] brushes;
@@ -27,18 +28,19 @@ public class RaycastCursor : MonoBehaviour {
         {
             distToCam += Input.mouseScrollDelta.y * scrollFactor;
         }
-
-        int x = (int)(transform.position.x - instance.transform.position.x) + 16;
-        int y = (int)(transform.position.y - instance.transform.position.y) + 16;
-        int z = (int)(transform.position.z - instance.transform.position.z) + 16;
-
-		currentPosition.Set (x, y, z);
-
-        if (Input.GetMouseButton(0))
+        
+        foreach(WaterFlow instance in instances)
         {
-            print(x + " " + y + " " + z);
-
-			instance.UpdateMesh();
+            int x = (int)(transform.position.x - instance.transform.position.x) + 16;
+            int y = (int)(transform.position.y - instance.transform.position.y) + 16;
+            int z = (int)(transform.position.z - instance.transform.position.z) + 16;
+			
+			currentPosition.Set (x, y, z);
+            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
+            {
+                brushes [brushIndex].SetVoxel (instance, brushSize, x, y, z, 1);
+				instance.UpdateMesh();
+            }
         }
     }
 }
