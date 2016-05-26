@@ -7,13 +7,12 @@ public class RaycastCursor : MonoBehaviour {
     public List<WaterFlow> instances = new List<WaterFlow>();
 	public int brushSize = 10;
 	public int brushIndex = 0;
-	public Brush[] brushes;
+	private Brush[] brushes;
 
-	private Vector3 currentPosition;
 	// Use this for initialization
 	void Start () {
 		currentPosition = new Vector3 (0, 0, 0);
-		brushes = new []{new CubicBrush(),new SphericBrush(),new CrossBrush()};
+		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
 	}
 	
 	// Update is called once per frame
@@ -34,11 +33,10 @@ public class RaycastCursor : MonoBehaviour {
             int x = (int)(transform.position.x - instance.transform.position.x) + 16;
             int y = (int)(transform.position.y - instance.transform.position.y) + 16;
             int z = (int)(transform.position.z - instance.transform.position.z) + 16;
-			
-			currentPosition.Set (x, y, z);
+
             if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
             {
-                brushes [brushIndex].SetVoxel (instance, brushSize, x, y, z, 1);
+				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, 1);
 				instance.UpdateMesh();
             }
         }
@@ -72,6 +70,8 @@ class SphericBrush : Brush
 	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
 	{
 		int offset = (int)(brushSize * 0.5);
+
+		Vector3 currentPosition = new Vector3 (x, y, z);
 		
 		// Brush boule
 		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
