@@ -12,6 +12,7 @@ public class WaterFlow : MonoBehaviour {
     public float target = 1 / 5f;
     private float currentTarget;
     private float time;
+    private bool isDirty;
 
     void Start()
     {
@@ -90,20 +91,33 @@ public class WaterFlow : MonoBehaviour {
 
     public void SetVoxel(int x, int y, int z, float value)
     {
-        if(x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32)
+        if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32)
+        {
+            if (voxels[x, y, z] != value)
+                isDirty = true;
             voxels[x, y, z] = value;
+        }
+    }
+
+    public float GetVoxel(int x, int y, int z)
+    {
+        return voxels[x, y, z];
     }
 
     public void UpdateMesh()
     {
-        Mesh mesh = MarchingCubes.CreateMesh(voxels);
+        if (isDirty)
+        {
+            Mesh mesh = MarchingCubes.CreateMesh(voxels);
 
-        MarchingCubes.SetTarget(target);
-        //The diffuse shader wants uvs so just fill with a empty array, there not actually used
-        mesh.uv = new Vector2[mesh.vertices.Length];
-        mesh.RecalculateNormals();
-        DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
-        m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
+            MarchingCubes.SetTarget(target);
+            //The diffuse shader wants uvs so just fill with a empty array, there not actually used
+            mesh.uv = new Vector2[mesh.vertices.Length];
+            mesh.RecalculateNormals();
+            DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
+            m_mesh.GetComponent<MeshFilter>().mesh = mesh;
+            m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
+            isDirty = false;
+        }
     }
 }

@@ -41,7 +41,6 @@ public class RaycastCursor : MonoBehaviour {
 
             if (Input.GetMouseButton(0))
             {
-                print(x + " " + y + " " + z);
 
                 int offset = (int)(brushSize * 0.5);
 
