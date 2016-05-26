@@ -29,9 +29,9 @@ public class RaycastCursor : MonoBehaviour {
         
         foreach(WaterFlow instance in instances)
         {
-            int x = (int)(transform.position.x - instance.transform.position.x) + 16;
-            int y = (int)(transform.position.y - instance.transform.position.y) + 16;
-            int z = (int)(transform.position.z - instance.transform.position.z) + 16;
+            int x = (int)(transform.position.x - instance.transform.position.x - 0.5f) + 16;
+            int y = (int)(transform.position.y - instance.transform.position.y - 0.5f) + 16;
+            int z = (int)(transform.position.z - instance.transform.position.z - 0.5f) + 16;
 
             if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
             {
