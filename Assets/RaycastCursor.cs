@@ -10,6 +10,9 @@ public class RaycastCursor : MonoBehaviour {
 	public int currentVoxelValue = 1;
 	private Brush[] brushes;
 
+	public bool isMouseLocked = true;
+
+
 	// Use this for initialization
 	void Start () {
 		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
