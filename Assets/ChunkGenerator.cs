@@ -4,7 +4,8 @@ using System.Collections;
 public class ChunkGenerator : MonoBehaviour {
     public int layersX, layersY, layersZ;
     public Transform chunkPrefab;
-    public RaycastCursor cursor;
+	public RaycastCursor cursor;
+	public Material material;
 
 	void Start ()
     {
@@ -16,6 +17,7 @@ public class ChunkGenerator : MonoBehaviour {
                 {
                     Transform instance = Instantiate<Transform>(chunkPrefab);
                     instance.transform.position = transform.position + new Vector3(31 * i, 31 * j, 31 * k);
+					instance.GetComponent<WaterFlow> ().m_material = material;
                     cursor.instances.Add(instance.GetComponent<WaterFlow>());
                 }
             }
