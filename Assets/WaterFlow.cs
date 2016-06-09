@@ -8,7 +8,8 @@ public class WaterFlow : MonoBehaviour {
     public Material m_material;
     
     private GameObject m_mesh;
-    private float[,,] voxels;
+	private float[,,] voxels;
+	private Color[,,] colors;
     public float target = 1 / 5f;
     private float currentTarget;
     private float time;
@@ -17,7 +18,6 @@ public class WaterFlow : MonoBehaviour {
     void Start()
     {
         currentTarget = target;
-
         //Target is the value that represents the surface of mesh
         //For example the perlin noise has a range of -1 to 1 so the mid point is were we want the surface to cut through
         //The target value does not have to be the mid point it can be any value with in the range
@@ -36,12 +36,14 @@ public class WaterFlow : MonoBehaviour {
         int height = 32;
         int length = 32;
 
-        voxels = new float[width, height, length];
+
+		voxels = new float[width, height, length];
+		colors = new Color[width, height, length];
 
         //Fill voxels with values. Im using perlin noise but any method to create voxels will work
         CalcVoxels(width, height, length);
 
-        Mesh mesh = MarchingCubes.CreateMesh(voxels);
+        Mesh mesh = MarchingCubes.CreateMesh(voxels, colors);
 
         //The diffuse shader wants uvs so just fill with a empty array, there not actually used
         mesh.uv = new Vector2[mesh.vertices.Length];
@@ -50,7 +52,7 @@ public class WaterFlow : MonoBehaviour {
         m_mesh = new GameObject("Mesh");
         m_mesh.AddComponent<MeshFilter>();
         m_mesh.AddComponent<MeshRenderer>();
-        m_mesh.GetComponent<Renderer>().material = m_material;
+		m_mesh.GetComponent<Renderer>().material = m_material;
         m_mesh.GetComponent<MeshFilter>().mesh = mesh;
         //Center mesh
         m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);
@@ -68,6 +70,7 @@ public class WaterFlow : MonoBehaviour {
             CalcVoxels(32, 32, 32);
             
         }*/
+
     }
 
 
@@ -89,13 +92,14 @@ public class WaterFlow : MonoBehaviour {
         }
     }
 
-    public void SetVoxel(int x, int y, int z, float value)
+	public void SetVoxel(int x, int y, int z, float value, Color color)
     {
         if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32)
         {
             if (voxels[x, y, z] != value)
                 isDirty = true;
             voxels[x, y, z] = value;
+			colors[x, y, z] = new Color(color.r, color.g, color.b, color.a);
         }
     }
 
@@ -108,12 +112,23 @@ public class WaterFlow : MonoBehaviour {
     {
         if (isDirty)
         {
-            Mesh mesh = MarchingCubes.CreateMesh(voxels);
+			Mesh mesh = MarchingCubes.CreateMesh(voxels, colors);
 
             MarchingCubes.SetTarget(target);
+			int lg = mesh.vertices.Length; 
             //The diffuse shader wants uvs so just fill with a empty array, there not actually used
-            mesh.uv = new Vector2[mesh.vertices.Length];
-            mesh.RecalculateNormals();
+			/*Color[] mColors = new Color[lg];
+			Color tmp;
+			for(int i = 0; i < lg; i++)
+			{	
+				mColors [i] = new Color32(255, 0, 0, 1);//Color.Lerp(Color.red, Color.green,mesh.vertices[i].y);
+
+			}*/
+
+			//mesh.SetColors (mColors);
+			//mesh.colors = colors;
+			//mesh.uv = new Vector2[lg];
+            //mesh.RecalculateNormals();
             DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
             m_mesh.GetComponent<MeshFilter>().mesh = mesh;
             m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);

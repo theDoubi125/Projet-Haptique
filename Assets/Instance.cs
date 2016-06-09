@@ -7,7 +7,8 @@ public class Instance : MonoBehaviour {
 
     private PerlinNoise m_perlin;
     private GameObject m_mesh;
-    private float[,,] voxels;
+	private float[,,] voxels;
+	private Color[,,] colors;
     public float target = 1/5f;
     private float currentTarget;
     private float time;
@@ -36,12 +37,13 @@ public class Instance : MonoBehaviour {
         int height = 32;
         int length = 32;
 
-        voxels = new float[width, height, length];
+		voxels = new float[width, height, length];
+		colors = new Color[width, height, length];
 
         //Fill voxels with values. Im using perlin noise but any method to create voxels will work
         CalcVoxels(width, height, length);
 
-        Mesh mesh = MarchingCubes.CreateMesh(voxels);
+        Mesh mesh = MarchingCubes.CreateMesh(voxels, colors);
 
         //The diffuse shader wants uvs so just fill with a empty array, there not actually used
         mesh.uv = new Vector2[mesh.vertices.Length];
@@ -68,7 +70,7 @@ public class Instance : MonoBehaviour {
             currentTarget = target;
             MarchingCubes.SetTarget(target);
             CalcVoxels(32, 32, 32);
-            Mesh mesh = MarchingCubes.CreateMesh(voxels);
+            Mesh mesh = MarchingCubes.CreateMesh(voxels, colors);
 
             //The diffuse shader wants uvs so just fill with a empty array, there not actually used
             mesh.uv = new Vector2[mesh.vertices.Length];

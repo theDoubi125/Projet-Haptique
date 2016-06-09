@@ -12,10 +12,13 @@ public class RaycastCursor : MonoBehaviour {
 
 	public bool isMouseLocked = true;
 
+	public Color currentColor;
+
 
 	// Use this for initialization
 	void Start () {
 		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
+		currentColor = new Color (Random.Range (0, 255), Random.Range (0, 255), Random.Range (0, 255), 255);
 	}
 	
 	// Update is called once per frame
@@ -39,7 +42,7 @@ public class RaycastCursor : MonoBehaviour {
 
             if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
             {
-				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, currentVoxelValue);
+				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, currentVoxelValue, currentColor);
 				instance.UpdateMesh();
             }
         }
@@ -49,19 +52,19 @@ public class RaycastCursor : MonoBehaviour {
 
 abstract class Brush
 {
-	public abstract void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value);
+	public abstract void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor);
 }
 	
 class CubicBrush : Brush
 {
-	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
 	{
 		int offset = (int)(brushSize * 0.5);
 		
 		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
 			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
 				for (int posY = y - offset; posY <= y + offset; posY++) {
-					instance.SetVoxel (posX, posY, posZ, value);
+					instance.SetVoxel (posX, posY, posZ, value, currentColor);
 				}
 			}
 		}
@@ -70,7 +73,7 @@ class CubicBrush : Brush
 
 class SphericBrush : Brush
 {
-	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
 	{
 		int offset = (int)(brushSize * 0.5);
 
@@ -81,7 +84,7 @@ class SphericBrush : Brush
 			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
 				for (int posY = y - offset; posY <= y + offset; posY++) {
 					if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
-						instance.SetVoxel (posX, posY, posZ, value);
+						instance.SetVoxel (posX, posY, posZ, value, currentColor);
 				}
 			}
 		}
@@ -90,19 +93,19 @@ class SphericBrush : Brush
 
 class CrossBrush : Brush
 {
-	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value)
+	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
 	{
 		int offset = (int)(brushSize * 0.5);
 
 		// Brush croix
 		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-			instance.SetVoxel (posX, y, z, value);
+			instance.SetVoxel (posX, y, z, value, currentColor);
 		}
 		for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-			instance.SetVoxel (x, y, posZ, value);
+			instance.SetVoxel (x, y, posZ, value, currentColor);
 		}
 		for (int posY = y - offset; posY <= y + offset; posY++) {
-			instance.SetVoxel (x, posY, z, value);
+			instance.SetVoxel (x, posY, z, value, currentColor);
 		}
 	}
 }

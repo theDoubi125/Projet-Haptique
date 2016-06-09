@@ -5,7 +5,7 @@ using System.Collections.Generic;
 static public class MarchingCubes
 {
 	//Function delegates, makes using functions pointers easier
-	delegate void MODE_FUNC(Vector3 pos, float[] cube, List<Vector3> vertList, List<int> indexList);
+	delegate void MODE_FUNC(Vector3 pos, float[] cube,Color currentColor,  List<Vector3> vertList, List<int> indexList, List<Color> colorList);
 	//Function poiter to what mode to use, cubes or tetrahedrons
 	static MODE_FUNC Mode_Func = MarchCube;
 	//Set the mode to use
@@ -16,11 +16,12 @@ static public class MarchingCubes
 	static public void SetTarget(float tar) { target = tar; }
 	static public void SetWindingOrder(int v0, int v1, int v2) { windingOrder = new int[]{ v0, v1, v2 }; }
 	
-	static public Mesh CreateMesh(float[,,] voxels)
+	static public Mesh CreateMesh(float[,,] voxels, Color[,,] colors)
 	{
 
 		List<Vector3> verts = new List<Vector3>();
 		List<int> index = new List<int>();
+		List<Color> cols = new List<Color>();
 		
 		float[] cube = new float[8];
 		
@@ -32,8 +33,13 @@ static public class MarchingCubes
 				{
 					//Get the values in the 8 neighbours which make up a cube
 					FillCube(x,y,z,voxels,cube);
+
+					Color currentColor = colors [x, y, z];
+					if (currentColor == null)
+						currentColor = new Color (255, 0, 0, 255);
+
 					//Perform algorithm
-					Mode_Func(new Vector3(x,y,z), cube, verts, index);
+					Mode_Func(new Vector3(x,y,z), cube,currentColor,  verts, index, cols);
 				}
 			}
 		}
@@ -42,6 +48,7 @@ static public class MarchingCubes
 
 		mesh.vertices = verts.ToArray();		
 		mesh.triangles = index.ToArray();
+		mesh.colors = cols.ToArray();
 		
 		return mesh;
 	}
@@ -61,13 +68,13 @@ static public class MarchingCubes
 	}
 	
 	//MarchCube performs the Marching Cubes algorithm on a single cube
-	static void MarchCube(Vector3 pos, float[] cube, List<Vector3> vertList, List<int> indexList)
+	static void MarchCube(Vector3 pos, float[] cube, Color currentColor, List<Vector3> vertList, List<int> indexList, List<Color> colorList)
 	{
 		int i, j, vert, idx;
 		int flagIndex = 0;
 		float offset = 0.0f;
-		
-	    Vector3[] edgeVertex = new Vector3[12];
+
+		Vector3[] edgeVertex = new Vector3[12];
 	
 	    //Find which vertices are inside of the surface and which are outside
 	    for(i = 0; i < 8; i++) if(cube[i] <= target) flagIndex |= 1<<i;
@@ -91,6 +98,8 @@ static public class MarchingCubes
                 edgeVertex[i].z = pos.z + (vertexOffset[edgeConnection[i,0],2] + offset * edgeDirection[i,2]);
 	        }
 	    }
+
+		//Color tmpColor = new Color (Random.Range (0, 255), Random.Range (0, 255), Random.Range (0, 255), 1);
 	
 	    //Save the triangles that were found. There can be up to five per cube
 	    for(i = 0; i < 5; i++)
@@ -104,12 +113,14 @@ static public class MarchingCubes
                 vert = triangleConnectionTable[flagIndex,3*i+j];
 				indexList.Add(idx+windingOrder[j]);
 				vertList.Add(edgeVertex[vert]);
+				colorList.Add (currentColor);
+
             }
 	    }
 	}
 	
 	//MarchTetrahedron performs the Marching Tetrahedrons algorithm on a single tetrahedron
-	static void MarchTetrahedron(Vector3[] tetrahedronPosition, float[] tetrahedronValue, List<Vector3> vertList, List<int> indexList)
+	static void MarchTetrahedron(Vector3[] tetrahedronPosition, float[] tetrahedronValue,Color currentColor,  List<Vector3> vertList, List<int> indexList, List<Color> colorList)
 	{
 		int i, j, vert, vert0, vert1, idx;
 		int flagIndex = 0, edgeFlags;
@@ -160,7 +171,7 @@ static public class MarchingCubes
 	}
 	
 	//MarchCubeTetrahedron performs the Marching Tetrahedrons algorithm on a single cube
-	static void MarchCubeTetrahedron(Vector3 pos, float[] cube, List<Vector3> vertList, List<int> indexList)
+	static void MarchCubeTetrahedron(Vector3 pos, float[] cube, Color currentColor, List<Vector3> vertList, List<int> indexList, List<Color> colorList)
 	{
 		int i, j, vertexInACube;
 		Vector3[] cubePosition = new Vector3[8];
@@ -179,7 +190,7 @@ static public class MarchingCubes
                 tetrahedronValue[j] = cube[vertexInACube];
 	        }
 			
-	        MarchTetrahedron(tetrahedronPosition, tetrahedronValue, vertList, indexList);
+			MarchTetrahedron(tetrahedronPosition, tetrahedronValue, currentColor, vertList, indexList, colorList);
 		}
 	}
 	

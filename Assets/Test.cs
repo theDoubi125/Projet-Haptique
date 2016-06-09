@@ -16,7 +16,7 @@ public class Test : MonoBehaviour {
         //x = instance.transform.position.x - 16 + X => 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            instance.SetVoxel(x, y, z, 1);
+			instance.SetVoxel(x, y, z, 1, new Color());
             instance.UpdateMesh();
         }
     }
