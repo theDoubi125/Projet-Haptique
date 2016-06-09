@@ -76,7 +76,7 @@ public class RaycastCursor : MonoBehaviour {
                 }
             }
         }
-        GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setForce(force/5);
+        GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setForce(force/2);
         if (force.magnitude != 0)
             print(force.magnitude);
     }
