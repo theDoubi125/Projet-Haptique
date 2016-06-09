@@ -12,6 +12,9 @@ public class RaycastCursor : MonoBehaviour {
     private Vector3 force, displayForce;
     private HapticArmController armController;
 
+	public bool isMouseLocked = true;
+
+
 	// Use this for initialization
 	void Start () {
 		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
