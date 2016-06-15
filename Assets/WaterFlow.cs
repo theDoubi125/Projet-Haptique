@@ -99,7 +99,16 @@ public class WaterFlow : MonoBehaviour {
             if (voxels[x, y, z] != value)
                 isDirty = true;
             voxels[x, y, z] = value;
-			colors[x, y, z] = new Color(color.r, color.g, color.b, color.a);
+        }
+    }
+
+    public void SetColor(int x, int y, int z, Color color)
+    {
+        if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32)
+        {
+            if (colors[x, y, z] != color)
+                isDirty = true;
+            colors[x, y, z] = new Color(color.r, color.g, color.b, color.a);
         }
     }
 
@@ -128,7 +137,7 @@ public class WaterFlow : MonoBehaviour {
 			//mesh.SetColors (mColors);
 			//mesh.colors = colors;
 			//mesh.uv = new Vector2[lg];
-            //mesh.RecalculateNormals();
+            mesh.RecalculateNormals();
             DestroyImmediate(m_mesh.GetComponent<MeshFilter>().sharedMesh, true);
             m_mesh.GetComponent<MeshFilter>().mesh = mesh;
             m_mesh.transform.localPosition = transform.position + new Vector3(-32 / 2, -32 / 2, -32 / 2);

@@ -15,7 +15,7 @@ static public class MarchingCubes
 	
 	static public void SetTarget(float tar) { target = tar; }
 	static public void SetWindingOrder(int v0, int v1, int v2) { windingOrder = new int[]{ v0, v1, v2 }; }
-	
+	private static Dictionary<Color, bool> test = new Dictionary<Color, bool>();
 	static public Mesh CreateMesh(float[,,] voxels, Color[,,] colors)
 	{
 
@@ -49,8 +49,13 @@ static public class MarchingCubes
 		mesh.vertices = verts.ToArray();		
 		mesh.triangles = index.ToArray();
 		mesh.colors = cols.ToArray();
-		
-		return mesh;
+
+        for(int i=0; i<mesh.colors.Length; i++)
+            test[mesh.colors[i]] = true;
+
+        Debug.Log("Colors : " + test.Count);
+
+        return mesh;
 	}
 	
 	static void FillCube(int x, int y, int z, float[,,] voxels, float[] cube)
@@ -113,7 +118,7 @@ static public class MarchingCubes
                 vert = triangleConnectionTable[flagIndex,3*i+j];
 				indexList.Add(idx+windingOrder[j]);
 				vertList.Add(edgeVertex[vert]);
-				colorList.Add (currentColor);
+                colorList.Add(currentColor);
 
             }
 	    }

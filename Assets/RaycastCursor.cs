@@ -60,15 +60,28 @@ class CubicBrush : Brush
 	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
 	{
 		int offset = (int)(brushSize * 0.5);
-		
-		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-				for (int posY = y - offset; posY <= y + offset; posY++) {
-					instance.SetVoxel (posX, posY, posZ, value, currentColor);
-				}
-			}
-		}
-	}
+
+        for (int posX = x - offset; posX <= x + offset; posX++)
+        { // Profondeur
+            for (int posZ = z - offset; posZ <= z + offset; posZ++)
+            {
+                for (int posY = y - offset; posY <= y + offset; posY++)
+                {
+                    instance.SetVoxel(posX, posY, posZ, value, currentColor);
+                }
+            }
+        }
+        for (int posX = x - offset - 1; posX <= x + offset; posX++)
+        { // Profondeur
+            for (int posZ = z - offset - 1; posZ <= z + offset; posZ++)
+            {
+                for (int posY = y - offset - 1; posY <= y + offset; posY++)
+                {
+                    instance.SetColor(posX, posY, posZ, currentColor);
+                }
+            }
+        }
+    }
 }
 
 class SphericBrush : Brush
