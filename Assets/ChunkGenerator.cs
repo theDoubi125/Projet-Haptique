@@ -15,7 +15,7 @@ public class ChunkGenerator : MonoBehaviour {
                 for(int k=0; k < layersZ; k++)
                 {
                     Transform instance = Instantiate<Transform>(chunkPrefab);
-                    instance.transform.position = transform.position + new Vector3(31 * i, 31 * j, 31 * k);
+                    instance.transform.position = transform.position + new Vector3(30 * i, 30 * j, 30 * k);
                     cursor.instances.Add(instance.GetComponent<WaterFlow>());
                 }
             }

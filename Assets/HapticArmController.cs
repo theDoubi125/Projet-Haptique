@@ -48,28 +48,33 @@ public class HapticArmController : MonoBehaviour
             print("Connected");
         else print("Not connected");
         NetworkStream stream = client.GetStream();
+        int arrayPos = 0;
+        byte[] data = new byte[3*sizeof(float)];
         while (true)
         {
             try
             {
-                byte[] data = new byte[100];
-                int read = stream.Read(data, 0, data.Length);
-                if(read > 0)
+                int read;
+                while ((read = stream.Read(data, arrayPos, data.Length)) > 0)
                 {
-                    float x = System.BitConverter.ToSingle(data, 0);
-                    float y = System.BitConverter.ToSingle(data, sizeof(float));
-                    float z = System.BitConverter.ToSingle(data, sizeof(float)*2);
-                    armPos.x = x;
-                    armPos.y = y;
-                    armPos.z = z;
-                    print("Received " + x + ", " + y + ", " + z + " " + read);
+                    arrayPos += read;
+                    if(read > 0)
+                    {
+                        arrayPos = 0;
+                        float x = System.BitConverter.ToSingle(data, 0);
+                        float y = System.BitConverter.ToSingle(data, sizeof(float));
+                        float z = System.BitConverter.ToSingle(data, sizeof(float)*2);
+                        armPos.x = x;
+                        armPos.y = y;
+                        armPos.z = z;
+                    }
                 }
+                Thread.Sleep(50);
             }
             catch (Exception err)
             {
                 print(err.ToString());
             }
-            Thread.Sleep(20);
         }
     }
 
@@ -78,7 +83,8 @@ public class HapticArmController : MonoBehaviour
         if(force != currentForce)
         {
             float[] floats = { force.x, force.y, force.z };
-            client.GetStream().Write(floatsToBytes(floats), 0, 3 * sizeof(float));
+            if(client.Connected)
+                client.GetStream().Write(floatsToBytes(floats), 0, 3 * sizeof(float));
             currentForce = force;
         }
     }

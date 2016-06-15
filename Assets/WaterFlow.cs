@@ -104,6 +104,14 @@ public class WaterFlow : MonoBehaviour {
         return voxels[x, y, z];
     }
 
+    public Vector3 GetGradientAt(int x, int y, int z)
+    {
+        float gx = ((GetVoxel(x, y, z) - GetVoxel(x + 1, y, z)) - (GetVoxel(x, y, z) - GetVoxel(x - 1, y, z))) / 2;
+        float gy = ((GetVoxel(x, y, z) - GetVoxel(x, y + 1, z)) - (GetVoxel(x, y, z) - GetVoxel(x, y - 1, z))) / 2;
+        float gz = ((GetVoxel(x, y, z) - GetVoxel(x, y, z + 1)) - (GetVoxel(x, y, z) - GetVoxel(x, y, z - 1))) / 2;
+        return new Vector3(gx, gy, gz);
+    }
+
     public void UpdateMesh()
     {
         if (isDirty)
