@@ -20,7 +20,13 @@ public class RaycastCursor : MonoBehaviour {
 		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
 		currentColor = new Color (Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f), 1);
 	}
-	
+
+
+	public void OnSetColor(Color color)
+	{
+		currentColor = color;
+	}
+
 	// Update is called once per frame
 	void Update ()
     {

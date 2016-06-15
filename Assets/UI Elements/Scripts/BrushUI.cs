@@ -21,6 +21,8 @@ public class BrushUI : MonoBehaviour {
 
 	public Animator animator;
 
+	public ColorPicker colorPicker;	
+
 	// Use this for initialization
 	void Awake () {
 
@@ -29,6 +31,10 @@ public class BrushUI : MonoBehaviour {
 		SetOutil (1);
 		SetBrushShape (0);
 		animator.SetBool ("isOpen", true);
+
+		OnSetColor(rayCastScript.currentColor);
+		/*if (rayCastScript && colorPicker is ColorPicker)
+			((ColorPicker)colorPicker).NotifyColor (rayCastScript.currentColor);*/
 	}
 
 	public void SetBrushSize(float brushSize)
@@ -56,11 +62,14 @@ public class BrushUI : MonoBehaviour {
 		if (isOpen) {
 			animator.SetBool ("isOpen", false);
 			isOpen = false;
+			//colorPicker.enabled = false;
 		} else {
 			animator.SetBool ("isOpen", true);
 			isOpen = true;
+			//colorPicker.enabled = true;
 		}
 	}
+
 
 	public void SetOutil(int outil)
 	{
@@ -88,6 +97,20 @@ public class BrushUI : MonoBehaviour {
 		brushShapeText.text = "Forme : " + GetBrushNameByIndex(finalBrushShape);
 		brushShapeSlider.value = finalBrushShape;
 
+	}
+		
+	void OnSetColor(Color color)
+	{
+		if(rayCastScript)
+			rayCastScript.OnSetColor(color);
+
+		cursor.GetComponent<Renderer> ().material.color = color;
+	}
+
+	void OnGetColor(ColorPicker picker)
+	{
+		if(rayCastScript)
+			picker.NotifyColor(rayCastScript.currentColor);
 	}
 
 	private string GetBrushNameByIndex(int brushShape)
