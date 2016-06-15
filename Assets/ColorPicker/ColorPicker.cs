@@ -124,7 +124,6 @@ public class ColorPicker : MonoBehaviour {
 		if (myParent != null) {
 			startPos.x = myParent.transform.position.x + saveStartPos.x;
 			startPos.y = myParent.transform.position.z + saveStartPos.y;
-			Debug.Log (myParent.transform.position.x+" "+ myParent.transform.position.y);
 		}
 
 
