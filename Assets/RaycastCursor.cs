@@ -159,22 +159,40 @@ class CubicBrush : Brush
 
 class SphericBrush : Brush
 {
-	public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
-	{
-		int offset = (int)(brushSize * 0.5);
+    public override void SetVoxel(WaterFlow instance, int brushSize, int x, int y, int z, float value, Color currentColor)
+    {
+        int offset = (int)(brushSize * 0.5);
 
-		Vector3 currentPosition = new Vector3 (x, y, z);
-		
-		// Brush boule
-		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-			for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-				for (int posY = y - offset; posY <= y + offset; posY++) {
-					if (Vector3.Distance (currentPosition, new Vector3 (posX, posY, posZ)) < offset)
-						instance.SetVoxel (posX, posY, posZ, value, currentColor);
-				}
-			}
-		}
-	}
+        Vector3 currentPosition = new Vector3(x, y, z);
+
+        // Brush boule
+        for (int posX = x - offset; posX <= x + offset; posX++)
+        { // Profondeur
+            for (int posZ = z - offset; posZ <= z + offset; posZ++)
+            {
+                for (int posY = y - offset; posY <= y + offset; posY++)
+                {
+                    if (Vector3.Distance(currentPosition, new Vector3(posX, posY, posZ)) < offset)
+                    {
+                        instance.SetVoxel(posX, posY, posZ, value, currentColor);
+                    }
+
+
+                }
+            }
+        }
+        for (int posX = x - offset - 1; posX <= x + offset + 1; posX++)
+        { // Profondeur
+            for (int posZ = z - offset - 1; posZ <= z + offset + 1; posZ++)
+            {
+                for (int posY = y - offset - 1; posY <= y + offset + 1; posY++)
+                {
+                    if (Vector3.Distance(currentPosition, new Vector3(posX, posY, posZ)) < offset + 2)
+                        instance.SetColor(posX, posY, posZ, currentColor);
+                }
+            }
+        }
+    }
 }
 
 class CrossBrush : Brush
@@ -183,15 +201,48 @@ class CrossBrush : Brush
 	{
 		int offset = (int)(brushSize * 0.5);
 
-		// Brush croix
-		for (int posX = x - offset; posX <= x + offset; posX++) { // Profondeur
-			instance.SetVoxel (posX, y, z, value, currentColor);
-		}
-		for (int posZ = z - offset; posZ <= z + offset; posZ++) {
-			instance.SetVoxel (x, y, posZ, value, currentColor);
-		}
-		for (int posY = y - offset; posY <= y + offset; posY++) {
-			instance.SetVoxel (x, posY, z, value, currentColor);
-		}
+        // Brush croix
+        for (int posX = x - offset; posX <= x + offset; posX++)
+        { // Profondeur
+            instance.SetVoxel(posX, y, z, value, currentColor);
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    for (int k = -1; k <= 1; k++)
+                    {
+                        instance.SetColor(posX + i, y + j, z + k, currentColor);
+                    }
+                }
+            }
+            for (int posZ = z - offset; posZ <= z + offset; posZ++)
+            {
+                instance.SetVoxel(x, y, posZ, value, currentColor);
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        for (int k = -1; k <= 1; k++)
+                        {
+                            instance.SetColor(x + i, y + j, posZ + k, currentColor);
+                        }
+                    }
+                }
+            }
+            for (int posY = y - offset; posY <= y + offset; posY++)
+            {
+                instance.SetVoxel(x, posY, z, value, currentColor);
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        for (int k = -1; k <= 1; k++)
+                        {
+                            instance.SetColor(x + i, posY + j, z + k, currentColor);
+                        }
+                    }
+                }
+            }
+        }
 	}
 }
