@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class RaycastCursor : MonoBehaviour {
+    private float friction;
+    public float frictionFactor = 10, frictionReduc = 0.99f;
     public float distToCam = 5, scrollFactor = 1;
     public List<WaterFlow> instances = new List<WaterFlow>();
 	public int brushSize = 10;
@@ -12,6 +14,7 @@ public class RaycastCursor : MonoBehaviour {
     private Vector3 force, displayForce;
     private HapticArmController armController;
     public bool isControlled = true;
+    public Vector3 decal, decalFactor = new Vector3(1, 1, 1);
 
 	public bool isMouseLocked = true;
 
@@ -51,7 +54,7 @@ public class RaycastCursor : MonoBehaviour {
             int y = (int)(transform.position.y - instance.transform.position.y - 0.5f) + 16;
             int z = (int)(transform.position.z - instance.transform.position.z - 0.5f) + 16;
 
-            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && Input.GetMouseButton(0))
+            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && (Input.GetMouseButton(0) || armController.switches[0]))
             {
 				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, currentVoxelValue, currentColor);
 				instance.UpdateMesh();
@@ -70,9 +73,9 @@ public class RaycastCursor : MonoBehaviour {
                         Vector3 pos = new Vector3(i - brushSize/2, j - brushSize/2, k - brushSize/2);
                         if(pos.magnitude < brushSize)
                         {
-                            int x = (int)(transform.position.x - instance.transform.position.x + i - 0.5f) + 16;
-                            int y = (int)(transform.position.y - instance.transform.position.y + j - 0.5f) + 16;
-                            int z = (int)(transform.position.z - instance.transform.position.z + k - 0.5f) + 16;
+                            int x = (int)(transform.position.x - instance.transform.position.x + i - decal.x + decalFactor.x * instance.x) + 16;
+                            int y = (int)(transform.position.y - instance.transform.position.y + j - decal.y + decalFactor.y * instance.y) + 16;
+                            int z = (int)(transform.position.z - instance.transform.position.z + k - decal.z + decalFactor.z * instance.z) + 16;
                             Vector3 centerPos = instance.transform.position + new Vector3(x - 16.5f, y - 16.5f, z - 16.5f);
                             float distance = (centerPos - transform.position).magnitude;
                             Vector3 f = instance.GetGradientAt(x, y, z) * (1 - distance / brushSize) * 5;
@@ -86,7 +89,13 @@ public class RaycastCursor : MonoBehaviour {
                 }
             }
         }
-        GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setForce(force/2);
+        //GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setForce(force/5);
+        friction -= frictionFactor * frictionReduc * Time.deltaTime;
+        if (friction < 0)
+            friction = 0;
+        if (force.magnitude > 0)
+            friction = frictionFactor;
+        GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setFriction(friction);
        GetVoxel(transform.position);
     }
 

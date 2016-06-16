@@ -17,8 +17,13 @@ public class ChunkGenerator : MonoBehaviour {
                 {
                     Transform instance = Instantiate<Transform>(chunkPrefab);
                     instance.transform.position = transform.position + new Vector3(30 * i, 30 * j, 30 * k);
-                    instance.GetComponent<WaterFlow>().m_material = material;
-                    cursor.instances.Add(instance.GetComponent<WaterFlow>());
+                    WaterFlow waterflow = instance.GetComponent<WaterFlow>();
+                    waterflow.m_material = material;
+                    waterflow.x = i;
+                    waterflow.y = j;
+                    waterflow.z = k;
+
+                    cursor.instances.Add(waterflow);
                 }
             }
         }

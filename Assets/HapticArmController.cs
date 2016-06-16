@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 public class HapticArmController : MonoBehaviour
 {
+    public float friction;
     // receiving Thread
     Thread receiveThread;
     // udpclient object
@@ -21,11 +22,15 @@ public class HapticArmController : MonoBehaviour
 
     string strReceiveUDP = "";
     Vector3 currentForce = new Vector3(0, 0, 0);
-    Vector3 armPos = new Vector3(0, 0, 0);
+    public Vector3 armPos = new Vector3(0, 0, 0);
+    private Vector3 armSpeed = new Vector3(0, 0, 0);
+    public bool[] switches;
+
 
     public void Start()
     {
         Application.runInBackground = true;
+        switches = new bool[4] { false, false, false, false };
         init();
     }
 
@@ -67,14 +72,25 @@ public class HapticArmController : MonoBehaviour
                             float x = System.BitConverter.ToSingle(data, sizeof(float));
                             float y = System.BitConverter.ToSingle(data, sizeof(float)*2);
                             float z = System.BitConverter.ToSingle(data, sizeof(float)*3);
+                            armSpeed.x = x - armPos.x;
+                            armSpeed.y = y - armPos.z;
+                            armSpeed.z = z - armPos.z;
                             armPos.x = x;
                             armPos.y = y;
                             armPos.z = z;
+                            setForce(armSpeed * friction);
                         }
                         else
                         {
+                            float button = System.BitConverter.ToSingle(data, sizeof(float));
+                            float pressed = System.BitConverter.ToSingle(data, sizeof(float) * 2);
+                            switches[(int)button] = (pressed == 1);
                             print("Button changed state : " + System.BitConverter.ToSingle(data, sizeof(float)) + " " + System.BitConverter.ToSingle(data, sizeof(float) * 2));
                         }
+                    }
+                    else
+                    {
+                        
                     }
                 }
                 Thread.Sleep(50);
@@ -90,11 +106,16 @@ public class HapticArmController : MonoBehaviour
     {
         if(force != currentForce)
         {
-            float[] floats = { force.x, force.y, force.z };
+            float[] floats = { force.x, force.y, force.z, friction };
             if(client.Connected)
-                client.GetStream().Write(floatsToBytes(floats), 0, 3 * sizeof(float));
+                client.GetStream().Write(floatsToBytes(floats), 0, 4 * sizeof(float));
             currentForce = force;
         }
+    }
+
+    public void setFriction(float friction)
+    {
+        this.friction = friction;
     }
 
     public Vector3 GetArmPos()

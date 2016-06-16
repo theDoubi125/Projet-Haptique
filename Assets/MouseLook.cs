@@ -31,11 +31,12 @@ public class MouseLook : MonoBehaviour {
 	float rotationY = 0;
     float rotationX = 0;
 
-    Vector2 armPos = new Vector2(0, 0);
-
     Vector2 lastMousePos;
 
-	void Update ()
+    public HapticArmController controller;
+
+
+    void Update ()
 	{
         if (Input.GetMouseButtonDown(1))
             lastMousePos = Input.mousePosition;
@@ -47,15 +48,15 @@ public class MouseLook : MonoBehaviour {
             rotationY = Mathf.Clamp(rotationY, -90, 90);
             lastMousePos = Input.mousePosition;
         }
-        if (isButtonPressed)
+        Vector2 armPos = new Vector2(controller.armPos.y, controller.armPos.z);
+        if (controller.switches[1])
         {
             Vector2 mouseMovement = (armPos - lastArmPos);
             rotationX += mouseMovement.x * sensitivityX;
             rotationY += mouseMovement.y * sensitivityY;
             rotationY = Mathf.Clamp(rotationY, -90, 90);
-            lastArmPos = armPos;
-            print(rotationX);
         }
+        lastArmPos = armPos;
         transform.rotation = Quaternion.Euler(rotationY, -rotationX, 0);
     }
 	
@@ -68,14 +69,4 @@ public class MouseLook : MonoBehaviour {
 
     private Vector2 lastArmPos;
     private bool isButtonPressed = false;
-    public void HandleArmMovement(float x, float y)
-    {
-        armPos = new Vector2(x, y);
-    }
-
-    public void HandleArmInput(int button, bool pressed)
-    {
-        print(button + " Pressed ? " + pressed);
-        isButtonPressed = pressed;
-    }
 }

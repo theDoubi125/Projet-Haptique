@@ -15,6 +15,8 @@ public class WaterFlow : MonoBehaviour {
     private float time;
     private bool isDirty;
 
+    public int x, y, z;
+
     void Start()
     {
         currentTarget = target;
