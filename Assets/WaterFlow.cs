@@ -85,8 +85,6 @@ public class WaterFlow : MonoBehaviour {
                     voxels[x, y, z] = 0;
                     Vector3 xyz = new Vector3(x, y, z) + transform.position;
                     Vector3 center2 = new Vector3(width / 2, height / 2, length / 2);
-                    if (x > width-5 && y > 5 && y < height - 5 && z > 5 && z < length - 5)
-                        voxels[x, y, z] = 10;
                 }
             }
         }
@@ -114,7 +112,17 @@ public class WaterFlow : MonoBehaviour {
 
     public float GetVoxel(int x, int y, int z)
     {
+        if (x < 0 || y < 0 || z < 0 || x >= 32 || y >= 32 || z >= 32)
+            return 0;
         return voxels[x, y, z];
+    }
+
+    public Vector3 GetGradientAt(int x, int y, int z)
+    {
+        float gx = ((GetVoxel(x, y, z) - GetVoxel(x + 1, y, z)) - (GetVoxel(x, y, z) - GetVoxel(x - 1, y, z))) / 2;
+        float gy = ((GetVoxel(x, y, z) - GetVoxel(x, y + 1, z)) - (GetVoxel(x, y, z) - GetVoxel(x, y - 1, z))) / 2;
+        float gz = ((GetVoxel(x, y, z) - GetVoxel(x, y, z + 1)) - (GetVoxel(x, y, z) - GetVoxel(x, y, z - 1))) / 2;
+        return new Vector3(gx, gy, gz);
     }
 
     public void UpdateMesh()

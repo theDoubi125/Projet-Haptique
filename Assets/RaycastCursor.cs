@@ -9,6 +9,9 @@ public class RaycastCursor : MonoBehaviour {
 	public int brushIndex = 0;
 	public int currentVoxelValue = 1;
 	private Brush[] brushes;
+    private Vector3 force, displayForce;
+    private HapticArmController armController;
+    public bool isControlled = true;
 
 	public bool isMouseLocked = true;
 
@@ -17,22 +20,24 @@ public class RaycastCursor : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		brushes = new Brush[]{new CubicBrush(),new SphericBrush(),new CrossBrush()};
+        brushes = new Brush[] { new CubicBrush(), new SphericBrush(), new CrossBrush() };
 		currentColor = new Color (Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f), 1);
-	}
+        armController = GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>();
+    }
 
 
 	public void OnSetColor(Color color)
 	{
 		currentColor = color;
 	}
-
 	// Update is called once per frame
 	void Update ()
     {
         Transform cam = Camera.main.transform;
-        
-        transform.position = cam.position + cam.forward * distToCam;
+
+        Vector3 armPos = armController.GetArmPos();
+        if(isControlled)
+            transform.position = cam.position + cam.forward * (distToCam - armPos.x) + cam.right * armPos.y + cam.up * armPos.z;
 
 
         if(Input.mouseScrollDelta.y != 0)
@@ -52,6 +57,68 @@ public class RaycastCursor : MonoBehaviour {
 				instance.UpdateMesh();
             }
         }
+        force = Vector3.zero;
+        displayForce = Vector3.zero;
+        for (int i=0; i< brushSize; i++)
+        {
+            for(int j=0; j< brushSize; j++)
+            {
+                for(int k=0; k< brushSize; k++)
+                {
+                    foreach (WaterFlow instance in instances)
+                    {
+                        Vector3 pos = new Vector3(i - brushSize/2, j - brushSize/2, k - brushSize/2);
+                        if(pos.magnitude < brushSize)
+                        {
+                            int x = (int)(transform.position.x - instance.transform.position.x + i - 0.5f) + 16;
+                            int y = (int)(transform.position.y - instance.transform.position.y + j - 0.5f) + 16;
+                            int z = (int)(transform.position.z - instance.transform.position.z + k - 0.5f) + 16;
+                            Vector3 centerPos = instance.transform.position + new Vector3(x - 16.5f, y - 16.5f, z - 16.5f);
+                            float distance = (centerPos - transform.position).magnitude;
+                            Vector3 f = instance.GetGradientAt(x, y, z) * (1 - distance / brushSize) * 5;
+                            displayForce += f;
+                            float fx = Vector3.Dot(f, cam.forward);
+                            float fy = Vector3.Dot(f, cam.right);
+                            float fz = Vector3.Dot(f, cam.up);
+                            force += new Vector3(fx, fy, fz);
+                        }
+                    }
+                }
+            }
+        }
+        GameObject.FindGameObjectWithTag("Haptic").GetComponent<HapticArmController>().setForce(force/2);
+       GetVoxel(transform.position);
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, transform.position + displayForce);
+    }
+
+    float GetVoxel(Vector3 pos)
+    {
+        float result = 0;
+        foreach(WaterFlow instance in instances)
+        {
+            int x = (int)(transform.position.x - instance.transform.position.x + 0.5f) + 16;
+            int y = (int)(transform.position.y - instance.transform.position.y - 0.5f) + 16;
+            int z = (int)(transform.position.z - instance.transform.position.z - 0.5f) + 16;
+            result += instance.GetVoxel(x, y, z);
+        }
+        return result;
+    }
+
+    float GetVoxel(Vector3 pos, int dx, int dy, int dz)
+    {
+        float result = 0;
+        foreach (WaterFlow instance in instances)
+        {
+            int x = (int)(transform.position.x - instance.transform.position.x + dx - 0.5f) + 16;
+            int y = (int)(transform.position.y - instance.transform.position.y + dy - 0.5f) + 16;
+            int z = (int)(transform.position.z - instance.transform.position.z + dz - 0.5f) + 16;
+            result += instance.GetVoxel(x, y, z);
+        }
+        return result;
     }
 }
 
