@@ -17,8 +17,10 @@ public class RaycastCursor : MonoBehaviour {
     public Vector3 decal, decalFactor = new Vector3(1, 1, 1);
 
 	public bool isMouseLocked = true;
+    public float armScrollFactor;
 
 	public Color currentColor;
+    private float currentArmDist = 0;
 
 
 	// Use this for initialization
@@ -47,6 +49,11 @@ public class RaycastCursor : MonoBehaviour {
         {
             distToCam += Input.mouseScrollDelta.y * scrollFactor;
         }
+        if(armController.switches[2])
+        {
+            distToCam += (armController.armPos.x - currentArmDist) * armScrollFactor;
+        }
+        currentArmDist = armController.armPos.x;
         
         foreach(WaterFlow instance in instances)
         {
@@ -54,7 +61,7 @@ public class RaycastCursor : MonoBehaviour {
             int y = (int)(transform.position.y - instance.transform.position.y - 0.5f) + 16;
             int z = (int)(transform.position.z - instance.transform.position.z - 0.5f) + 16;
 
-            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && (Input.GetMouseButton(0) || armController.switches[0]))
+            if (x >= 0 && y >= 0 && z >= 0 && x < 32 && y < 32 && z < 32 && (armController.switches[0]))
             {
 				(brushes [brushIndex]).SetVoxel (instance, brushSize, x, y, z, currentVoxelValue, currentColor);
 				instance.UpdateMesh();
